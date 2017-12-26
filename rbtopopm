@@ -1,0 +1,18 @@
+#!/bin/sh
+
+dir=~/bin/
+
+jar_name=RhythmBoxToPOPM.jar
+
+for file in "$@"
+do
+files=$files"$file"",;"
+echo "Adding file ""$file"
+done
+destdir=~/Documents/.rbtopopm_temp.txt
+touch $destdir
+if [ -f "$destdir" ]
+then
+    echo "$files" > "$destdir"
+fi
+java -cp $dir$jar_name RBToPOPM "$destdir"

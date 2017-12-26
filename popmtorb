@@ -1,0 +1,24 @@
+#!/bin/bash
+
+dir=/usr/local/bin/
+
+jar_name=POPMToRhythmBox.jar
+
+flag=""
+for file in "$@"
+do
+    if [ "$file" = "-f" ]
+    then flag="-f"
+    else
+        files=$files"$file"",;"
+        echo "Adding file ""$file"
+    fi
+
+done
+destdir=~/Documents/.rbtopopm_temp.txt
+touch $destdir
+if [ -f "$destdir" ]
+then
+    echo "$files" > "$destdir"
+fi
+java -cp $dir$jar_name POPMToRB "$destdir" "$flag"

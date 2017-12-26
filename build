@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#dependencies
+sudo apt install libimage-exiftool-perl
+sudo apt-get install eyed3
+
+#move the startups
+sudo cp rbtopopm /usr/local/bin/
+sudo cp popmtorb /usr/local/bin/
+sudo chmod +x /usr/local/bin/rbtopopm
+sudo chmod +x /usr/local/bin/popmtorb
+#compile the jars
+javac RBToPOPM.java POPMToRB.java ID3Reader.java Rating.java
+jar cvf RhythmBoxToPOPM.jar RBToPOPM.class
+jar cvf POPMToRhythmBox.jar POPMToRB.class ID3Reader.class Rating.class
+#move the jars
+sudo cp RhythmBoxToPOPM.jar /usr/local/bin/
+sudo cp POPMToRhythmBox.jar /usr/local/bin/

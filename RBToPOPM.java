@@ -31,15 +31,7 @@ public class RBToPOPM {
         starsToNumber.putIfAbsent(4, 196);
         starsToNumber.putIfAbsent(5, 255);
     }
-    public static HashMap<Integer, Integer> numberToStars = new HashMap<>();
-    static {
-        numberToStars.put(0, 0);
-        numberToStars.put(1, 1);
-        numberToStars.put(64, 2);
-        numberToStars.put(128, 3);
-        numberToStars.put(196, 4);
-        numberToStars.put(255, 5);
-    }
+    
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_RESET = "\u001B[0m";
@@ -55,7 +47,9 @@ public class RBToPOPM {
         }
 
         String database = System.getProperty("user.home") + "/.local/share/rhythmbox/rhythmdb.xml";
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(20);
+        int threads = Runtime.getRuntime().availableProcessors();
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threads);
+        System.out.println("Running program on " + threads + " threads");
 
         File db = new File(database);
         if (db.canRead()) {

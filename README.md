@@ -28,9 +28,9 @@ Usage: rbtopopm [files]
 # popmtorb
 This takes the rating from the music file and writes it to the Rhythmbox database, potentially overwriting an existing one.
 Behaviour:
-  -if the music file has no rating, it is skipped.
-  -if the file has rating and is the same as the one in RB, the file is skipped.
-  -if the file has rating and it is differnt from the RB one, the user is promted: he is shown both ratings and asked if the database should be overriten. 
-    -if the -f option is used this prompt will not appear, the file will be skipped (this is recommended for huge libraries of music)
+  - if the music file has no rating, it is skipped.
+  - if the file has rating and is the same as the one in RB, the file is skipped.
+  - if the file has rating and it is differnt from the RB one, the user is promted: he is shown both ratings and asked if the database should be overriten. 
+    - if the -f option is used this prompt will not appear, the file will be skipped (this is recommended for huge libraries of music)
 
 Usage: popmtorb [-f] [files] or popmtorb [files] [-f] (the -f is optional).

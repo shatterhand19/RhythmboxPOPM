@@ -11,7 +11,7 @@ shopt -s globstar
 rbtopopm ~/Music/**/*.mp3
   ```
 
-<b> Note that the music folder must be referenced with whole path from the home folder (i.e. ~/Music/...) <b>
+<b> Note that the music folder must be referenced with whole path from the home folder (i.e. ~/Music/...) </b>
 
 This will select all mp3 files in the Music folder, no matter their place in the file tree. However your shell must support globstar; for other shells there are other solutions online.
 

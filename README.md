@@ -15,11 +15,23 @@ rbtopopm ~/Music/**/*.mp3
 
 This will select all mp3 files in the Music folder, no matter their place in the file tree. However your shell must support globstar; for other shells there are other solutions online.
 
+For very large numbers of files, you may want to instead use something like:
+```bash
+find ~/Music -name "*.mp3" > ~/Documents/.rbtopopm_temp.txt
+java -cp /usr/local/bin/POPMToRhythmBox.jar POPMToRB ~/Documents/.rbtopopm_temp.txt
+  ```
+
 
 For this to work I am using two dependencies - tools called eyeD3 and exiftool, both great tools, worth cheking out if you want to develop something yourself ;)
 
 # Installation
-Download and run build. It will install dependencies, compile files and move them to appropriate places. It needs root access.
+Download and run build. It will install dependencies, compile files and move them to appropriate places. It needs root access. You need to have the Java JDK installed.
+
+For example:
+```bash
+sudo apt-get install openjdk-11-jdk
+bash build
+  ```
 
 # rbtopopm
 This takes the rating from the Rhythmbox database and writes it to the file, deleting all previous ratings.

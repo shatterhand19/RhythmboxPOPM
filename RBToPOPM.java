@@ -13,6 +13,8 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -32,18 +34,29 @@ public class RBToPOPM {
         starsToNumber.putIfAbsent(5, 255);
     }
     
+    public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_RESET = "\u001B[0m";
     private static int total = 0;
 
     public static void main(String... args) throws ParserConfigurationException, IOException, SAXException, URISyntaxException, InterruptedException, ExecutionException {
-        args = Files.readAllLines(Paths.get(args[0])).get(0).split(",;");
+        //Enumerate all the files that are passed to the program
+        List<String> filenames = new ArrayList<>();
+        if (args.length >= 1) {
+            if (!new File(args[0]).isDirectory()) {
+                filenames = Files.readAllLines(Paths.get(args[0]));
+            } else {
+                System.out.println(ANSI_RED + "Song file argument specified is a directory (first argument should be the path to a file containing filenames)" + ANSI_RESET);
+                return;
+            }
+        } else {
+            System.out.println(ANSI_RED + "No song file argument specified (first argument should be the path to a file containing filenames)" + ANSI_RESET);
+            return;
+        }
         HashMap<String, File> files = new HashMap<>();
-        //Read all the files that are passed to the program
-
-        for (String arg : args) {
-            files.put(arg, new File(arg));
+        for (String filename : filenames) {
+            if (!filename.equals("")) files.put(filename, new File(filename));
         }
 
         String database = System.getProperty("user.home") + "/.local/share/rhythmbox/rhythmdb.xml";
@@ -60,8 +73,8 @@ public class RBToPOPM {
 
             doc.getDocumentElement().normalize();
 
-            NodeList songs = doc.getElementsByTagName("entry");
             //For all songs
+            NodeList songs = doc.getElementsByTagName("entry");
             for (int i = 0; i < songs.getLength(); i++) {
                 Node song = songs.item(i);
                 Element songElement = (Element) song;
@@ -78,7 +91,7 @@ public class RBToPOPM {
                         NodeList temp = songElement.getElementsByTagName("rating");
                         if (temp != null) {
                             //Increment the number of total processed files
-                            total ++;
+                            total++;
                             //Get the rating of RhythmBox
                             int RBRating;
                             Node stars = temp.item(0);
@@ -103,7 +116,7 @@ public class RBToPOPM {
             executor.shutdown();
         }
 
-        //System.out.println("\n" + ANSI_GREEN + "Processed " + total + " songs successfully!" + ANSI_RESET + "");
+        System.out.println("\n" + ANSI_GREEN + "Processed " + total + " songs successfully!" + ANSI_RESET + "");
     }
 
     public static void addNewRating(File toAddPOPM, int RBRating, int WMPRating) throws IOException, InterruptedException {

@@ -24,7 +24,8 @@ public class Rating {
     public static int extractRating(String popm) {
         if (popm.equals("-")) return 0;
         String ratingPart = popm;
-        if(ratingPart.contains(":")) ratingPart = popm.split(":")[1].trim();
+        if (ratingPart.contains(":")) ratingPart = popm.split(":")[1].trim();
+        if (!ratingPart.contains("Rating=")) return 0;
         ratingPart = ratingPart.substring(ratingPart.indexOf("Rating="));
         ratingPart = ratingPart.split(" ")[0];
         int rating = Integer.parseInt(ratingPart.split("=")[1]);

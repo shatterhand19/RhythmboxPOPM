@@ -10,15 +10,15 @@ do
     if [ "$file" = "-f" ]
     then flag="-f"
     else
-        files=$files"$file"",;"
+        files="$files""\n""$file"
         echo "Adding file ""$file"
     fi
-
 done
-destdir=~/Documents/.rbtopopm_temp.txt
-touch $destdir
-if [ -f "$destdir" ]
+
+listfile=~/Documents/.rbtopopm_temp.txt
+touch $listfile
+if [ -f "$listfile" ]
 then
-    echo "$files" > "$destdir"
+    echo "$files" > "$listfile"
 fi
-java -cp $dir$jar_name POPMToRB "$destdir" "$flag"
+java -cp $dir$jar_name POPMToRB "$listfile" "$flag"

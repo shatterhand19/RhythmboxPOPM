@@ -6,13 +6,13 @@ jar_name=RhythmBoxToPOPM.jar
 
 for file in "$@"
 do
-files=$files"$file"",;"
+files="$files""\n""$file"
 echo "Adding file ""$file"
 done
-destdir=~/Documents/.rbtopopm_temp.txt
-touch $destdir
-if [ -f "$destdir" ]
+listfile=~/Documents/.rbtopopm_temp.txt
+touch $listfile
+if [ -f "$listfile" ]
 then
-    echo "$files" > "$destdir"
+    echo "$files" > "$listfile"
 fi
-java -cp $dir$jar_name RBToPOPM "$destdir"
+java -cp $dir$jar_name RBToPOPM "$listfile"

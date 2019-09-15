@@ -38,16 +38,16 @@ public class Rating {
         if (rating == 0) {
             return 0;
         }
-        if (rating <= 31) {
+        if (rating <= 32) {
             return 1;
         }
-        if (rating <= 94) {
+        if (rating <= 95) {
             return 2;
         }
-        if (rating <= 158) {
+        if (rating <= 159) {
             return 3;
         }
-        if (rating <= 222) {
+        if (rating <= 223) {
             return 4;
         }
         return 5;

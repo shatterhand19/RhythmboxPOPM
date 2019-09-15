@@ -2,7 +2,7 @@
 
 dir=/usr/local/bin/
 
-jar_name=POPMToRhythmBox.jar
+jar_name=POPMToRhythmbox.jar
 
 flag=""
 for file in "$@"

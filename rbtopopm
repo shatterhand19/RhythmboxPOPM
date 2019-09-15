@@ -2,7 +2,7 @@
 
 dir=/usr/local/bin/
 
-jar_name=RhythmBoxToPOPM.jar
+jar_name=RhythmboxToPOPM.jar
 
 email=""
 for file in "$@"

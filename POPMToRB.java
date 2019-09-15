@@ -136,7 +136,7 @@ public class POPMToRB {
 
                                 total++;
                             } else {
-                                System.out.println(ANSI_RED + "Could not find any rating set in " + val + ANSI_RESET);
+                                System.out.println(ANSI_RED + "Could not find any rating set in " + val + ANSI_RESET + "\n");
                             }
                         }
                     }

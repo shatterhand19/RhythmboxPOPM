@@ -10,9 +10,9 @@ sudo cp popmtorb /usr/local/bin/
 sudo chmod +x /usr/local/bin/rbtopopm
 sudo chmod +x /usr/local/bin/popmtorb
 #compile the jars
-javac RBToPOPM.java POPMToRB.java ID3Reader.java Rating.java
+javac *.java
 jar cvf RhythmBoxToPOPM.jar RBToPOPM.class
-jar cvf POPMToRhythmBox.jar POPMToRB.class ID3Reader.class Rating.class
+jar cvf POPMToRhythmBox.jar POPMToRB.class ID3Reader.class POPMDecoder.class
 #move the jars
 sudo cp RhythmBoxToPOPM.jar /usr/local/bin/
 sudo cp POPMToRhythmBox.jar /usr/local/bin/

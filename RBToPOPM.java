@@ -87,36 +87,59 @@ public class RBToPOPM {
                 Node song = songs.item(i);
                 Element songElement = (Element) song;
                 Node location = songElement.getElementsByTagName("location").item(0);
-                //If the location is not null
                 if (location != null) {
+                    //Get the filename and if it is one of the requested files
                     String val = location.getTextContent();
                     val = val.replace("file://", "");
                     val = URLDecoder.decode(val, "UTF-8");
-                    //Get the filename and if it is one of the requested files
                     if (files.containsKey(val)) {
                         File toAddPOPM = files.get(val);
+                        boolean fileUpdated = false;
+                        int popmRating = 0;
+                        int playCount = 0;
 
-                        NodeList temp = songElement.getElementsByTagName("rating");
-                        if (temp != null) {
-                            //Increment the number of total processed files
-                            total++;
-                            //Get the rating of RhythmBox
+                        NodeList rbRatingNodeList = songElement.getElementsByTagName("rating");
+                        if (rbRatingNodeList != null) {
+                            //Get the rating of Rhythmbox
                             int rbRating;
-                            Node stars = temp.item(0);
-                            if (stars == null) {
+                            Node rbRatingNode = rbRatingNodeList.item(0);
+                            if (rbRatingNode == null) {
                                 rbRating = 0;
                             } else {
-                                rbRating = Integer.parseInt(temp.item(0).getTextContent());
+                                rbRating = Integer.parseInt(rbRatingNode.getTextContent());
                             }
-                            int popmRating = starsToNumber.get(rbRating);
+                            popmRating = starsToNumber.get(rbRating);
 
+                            fileUpdated = true;
+                        }
+
+                        NodeList rbPlayCountNodeList = songElement.getElementsByTagName("play-count");
+                        if (rbPlayCountNodeList != null) {
+                            //Get the play count of Rhythmbox
+                            Node rbPlayCountNode = rbPlayCountNodeList.item(0);
+                            if (rbPlayCountNode == null) {
+                                playCount = 0;
+                            } else {
+                                playCount = Integer.parseInt(rbPlayCountNode.getTextContent());
+                            }
+
+                            fileUpdated = true;
+                        }
+
+                        if (fileUpdated) {
+                            // Save the change
+                            final int popmRatingFinal = popmRating;
+                            final int playCountFinal = playCount;
                             executor.execute(() -> {
                                 try {
-                                    addNewRating(toAddPOPM, popmRating);
+                                    addNewPOPM(toAddPOPM, popmRatingFinal, playCountFinal);
                                 } catch (IOException | InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             });
+
+                            //Increment the number of total processed files
+                            total++;
                         }
                     }
                 }
@@ -127,7 +150,15 @@ public class RBToPOPM {
         System.out.println("\n" + ANSI_GREEN + "Processed " + total + " songs successfully!" + ANSI_RESET + "");
     }
 
-    public static void addNewRating(File toAddPOPM, int popmRating) throws IOException, InterruptedException {
+    public static void addNewPOPM(File toAddPOPM, int popmRating, int playCount) throws IOException, InterruptedException {
+        String options = "--add-popularity=" + email + ":" + popmRating + ":" + playCount;
+
+        /*boolean dryRunDebug = true;
+        if (dryRunDebug) {
+            System.out.println(options);
+            return;
+        }*/
+
         //Clear out old rating
         System.out.println(ANSI_YELLOW + "[Deleting obsolete POPM]\t" + ANSI_RESET + toAddPOPM.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder("eyeD3", "--remove-frame=POPM", toAddPOPM.getAbsolutePath());
@@ -135,8 +166,7 @@ public class RBToPOPM {
         p.waitFor();
 
         //Add the rating
-        String options = "--add-popularity=" + email + ":" + popmRating + ":0";
-        System.out.println(ANSI_GREEN + "[Adding POPM] [Rating=" + popmRating + "]\t" + ANSI_RESET + toAddPOPM.getAbsolutePath());
+        System.out.println(ANSI_GREEN + "[Adding POPM] [Rating=" + popmRating + ", Play count=" + playCount + "]\t" + ANSI_RESET + toAddPOPM.getAbsolutePath());
         pb = new ProcessBuilder("eyeD3", options, toAddPOPM.getAbsolutePath());
         Process addRating = pb.start();
         addRating.waitFor();

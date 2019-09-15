@@ -1,7 +1,7 @@
 # RhythmboxPOPM
 Scripts for dealing with POPM ID3 frames and Rhythmbox.
 
-As is well known, RB uses an XML database to store its music files, together with ratings. However, it does not read the ID3 rating frame of a music file, if it exists, making it harder for people transferring rated music from other players to this one (for example when switching from Windows to Linux). These scripts are trying to make that easier.
+As is well known, RB uses an XML database to store its music files, together with ratings and play counts. However, it does not read the ID3 POPM frame of a music file, if it exists, making it harder for people transferring rated music from other players to this one (for example when switching from Windows to Linux). These scripts are trying to make that easier.
 
 Note: the popmtorb is very fast: with -f option it goes through 2000 files in less than 5 seconds. However the rbtopopm is much slower, taking about 5 minutes for all 2000. I understand the problem and I am trying to make it faster. Any input on this is appreciated.
 
@@ -34,18 +34,18 @@ bash build
   ```
 
 # rbtopopm
-This takes the rating from the Rhythmbox database and writes it to the file, deleting all previous ratings.
+This takes the ratings and play counts from the Rhythmbox database and writes them to the files, deleting all previous ratings and play counts.
 
 Usage: rbtopopm email@address [files]
 
 # popmtorb
-This takes the rating from the music file and writes it to the Rhythmbox database, potentially overwriting an existing one.
+This takes the ratings and play counts from the music files and writes them to the Rhythmbox database, potentially overwriting existing ones.
 Behaviour:
-  - if the music file has no rating, it is skipped.
-  - if the file has rating and is the same as the one in RB, the file is skipped.
-  - if the file has rating and it is different from the RB one
-    - if no flag option is passed, the user is prompted: he is shown both ratings and asked if the database should be overwritten (not recommended for huge libraries of music).
+  - if the music file has no rating and no play count, it is skipped.
+  - if the file has a rating and play count and if both are the same as in RB, the file is skipped.
+  - if the file has a rating and play count and one/both are different from the RB one
+    - if no flag option is passed, the user is prompted: they are shown the conflicting values and asked if the database should be overwritten (not recommended for huge libraries of music).
     - if the -f flag option is used this prompt will not appear, the file will be skipped.
-    - if the -o flag option is used this prompt will not appear, the file will be overwritten.
+    - if the -o flag option is used this prompt will not appear, the file will be updated.
 
 Usage: popmtorb [-f|-o] [files] or popmtorb [files] [-f|-o] (the -f and -o flags are optional).

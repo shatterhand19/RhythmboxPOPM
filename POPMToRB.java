@@ -61,22 +61,27 @@ public class POPMToRB {
         for (String filename : filenames) {
             if (!filename.equals("")) files.put(filename, new File(filename));
         }
-        System.out.println(ANSI_YELLOW + "Found " + files.size() + " files, now reading rating flags..." + ANSI_RESET);
+        System.out.println(ANSI_YELLOW + "Found " + files.size() + " files, now reading POPM flags..." + ANSI_RESET);
         File[] filesArray = files.values().toArray(new File[files.size()]);
 
-        //Read the ratings of the music files
-        String[][] ratingsFrames = ID3Reader.getFrames(filesArray, "-popularimeter");
+        //Read the ratings/play counts of the music files
+        String[][] popmFrames = ID3Reader.getFrames(filesArray, "-popularimeter");
         HashMap<String, Integer> ratings = new HashMap<>();
+        HashMap<String, Integer> playCounts = new HashMap<>();
         int numFlags = 0;
         for (int i = 0; i < filesArray.length; i++) {
-            int fileRating = Rating.extractRating(ratingsFrames[i][0]);
+            int fileRating = POPMDecoder.extractRating(popmFrames[i][0]);
             ratings.put(filesArray[i].getAbsolutePath(), fileRating);
-            if (fileRating != 0) numFlags++;
+
+            int filePlayCount = POPMDecoder.extractPlayCount(popmFrames[i][0]);
+            playCounts.put(filesArray[i].getAbsolutePath(), filePlayCount);
+
+            if ((fileRating != 0) || (filePlayCount != 0)) numFlags++;
         }
 
         System.out.println(ANSI_YELLOW + "Found " + numFlags + " flags, now processing into Rhythmbox..." + ANSI_RESET);
 
-        //Go through the RhythmBox XML file
+        //Go through the Rhythmbox XML file
         String database = System.getProperty("user.home") + "/.local/share/rhythmbox/rhythmdb.xml";
         File db = new File(database);
         if (db.canRead()) {
@@ -94,29 +99,31 @@ public class POPMToRB {
                 Node song = songs.item(i);
                 Element songElement = (Element) song;
                 Node location = songElement.getElementsByTagName("location").item(0);
-                //If the location is not null
                 if (location != null) {
+                    //Get the filename and if it is one of the requested files
                     String val = location.getTextContent();
                     val = val.replace("file://", "");
                     val = URLDecoder.decode(val, "UTF-8");
-                    //Get the filename and if it is one of the requested files
                     if (files.containsKey(val)) {
-                        NodeList temp = songElement.getElementsByTagName("rating");
-                        if (temp != null) {
+                        boolean fileUpdated = false;
+
+                        // Handle ratings
+                        NodeList rbRatingNodeList = songElement.getElementsByTagName("rating");
+                        if (rbRatingNodeList != null) {
                             //Get the rating of Rhythmbox
                             int rbRating, fileRating = ratings.get(val);
-                            Node stars = temp.item(0);
+                            Node rbRatingNode = rbRatingNodeList.item(0);
                             if (fileRating > 0) {
                                 String progressStub = (i + 1) + "/" + totalEntries + ") ";
-                                if (stars == null) {
-                                    addNewRating(doc, songElement, ratings.get(val));
-                                    System.out.println(progressStub + ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + ratings.get(val) + "\n");
+                                if (rbRatingNode == null) {
+                                    addNewRating(doc, songElement, fileRating);
+                                    System.out.println(progressStub + ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + fileRating + "\n");
                                 } else {
                                     String existsMsg = progressStub + "Rating for " + ANSI_YELLOW + val + ANSI_RED + " already exists";
-                                    rbRating = Integer.parseInt(temp.item(0).getTextContent());
+                                    rbRating = Integer.parseInt(rbRatingNode.getTextContent());
                                     if (fileRating != rbRating && overwrite) {
                                         addNewRating(doc, songElement, fileRating);
-                                        System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + ratings.get(val) + "\n");
+                                        System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + fileRating + "\n");
                                     } else if (fileRating != rbRating && promptChange) {
                                         System.out.println(existsMsg + "!" + ANSI_RESET);
                                         System.out.println(ANSI_GREEN + "Rhythmbox rating " + ANSI_RESET + rbRating + ANSI_YELLOW + "    File rating " + ANSI_RESET + fileRating);
@@ -125,7 +132,7 @@ public class POPMToRB {
                                         String ans = response.next();
                                         if (ans.equals("Y")) {
                                             addNewRating(doc, songElement, fileRating);
-                                            System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + ratings.get(val) + "\n");
+                                            System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + fileRating + "\n");
                                         }
                                     } else if (fileRating == rbRating) {
                                         System.out.println(existsMsg + ", rating is unchanged, skipping!" + ANSI_RESET);
@@ -134,10 +141,55 @@ public class POPMToRB {
                                     }
                                 }
 
-                                total++;
+                                fileUpdated = true;
                             } else {
                                 System.out.println(ANSI_RED + "Could not find any rating set in " + val + ANSI_RESET + "\n");
                             }
+                        }
+
+                        // Handle play counts
+                        NodeList rbPlayCountNodeList = songElement.getElementsByTagName("play-count");
+                        if (rbPlayCountNodeList != null) {
+                            //Get the play count of Rhythmbox
+                            int rbPlayCount, filePlayCount = playCounts.get(val);
+                            Node rbPlayCountNode = rbPlayCountNodeList.item(0);
+                            if (filePlayCount > 0) {
+                                String progressStub = (i + 1) + "/" + totalEntries + ") ";
+                                if (rbPlayCountNode == null) {
+                                    addNewPlayCount(doc, songElement, filePlayCount);
+                                    System.out.println(progressStub + ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + filePlayCount + "\n");
+                                } else {
+                                    String existsMsg = progressStub + "Play count for " + ANSI_YELLOW + val + ANSI_RED + " already exists";
+                                    rbPlayCount = Integer.parseInt(rbPlayCountNode.getTextContent());
+                                    if (filePlayCount != rbPlayCount && overwrite) {
+                                        addNewPlayCount(doc, songElement, filePlayCount);
+                                        System.out.println(ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + filePlayCount + "\n");
+                                    } else if (filePlayCount != rbPlayCount && promptChange) {
+                                        System.out.println(existsMsg + "!" + ANSI_RESET);
+                                        System.out.println(ANSI_GREEN + "Rhythmbox play count " + ANSI_RESET + rbPlayCount + ANSI_YELLOW + "    File play count " + ANSI_RESET + filePlayCount);
+                                        System.out.println("Do you want to override it? (Y/n)");
+                                        Scanner response = new Scanner(System.in);
+                                        String ans = response.next();
+                                        if (ans.equals("Y")) {
+                                            addNewPlayCount(doc, songElement, filePlayCount);
+                                            System.out.println(ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + filePlayCount + "\n");
+                                        }
+                                    } else if (filePlayCount == rbPlayCount) {
+                                        System.out.println(existsMsg + ", play count is unchanged, skipping!" + ANSI_RESET);
+                                    } else {
+                                        System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET);
+                                    }
+                                }
+
+                                fileUpdated = true;
+                            } else {
+                                System.out.println(ANSI_RED + "Could not find any play count set in " + val + ANSI_RESET + "\n");
+                            }
+                        }
+
+                        //Increment the number of total processed files
+                        if (fileUpdated) {
+                            total++;
                         }
                     }
                 }
@@ -155,8 +207,14 @@ public class POPMToRB {
     }
 
     public static void addNewRating(Document document, Element song, int rating) {
-        Element r = document.createElement("rating");
-        r.appendChild(document.createTextNode(Integer.toString(rating)));
-        song.appendChild(r);
+        Element e = document.createElement("rating");
+        e.appendChild(document.createTextNode(Integer.toString(rating)));
+        song.appendChild(e);
+    }
+
+    public static void addNewPlayCount(Document document, Element song, int playCount) {
+        Element e = document.createElement("play-count");
+        e.appendChild(document.createTextNode(Integer.toString(playCount)));
+        song.appendChild(e);
     }
 }

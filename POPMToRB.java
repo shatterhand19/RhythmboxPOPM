@@ -202,7 +202,10 @@ public class POPMToRB {
             StreamResult result = new StreamResult(new File(database));
             transformer.transform(source, result);
             System.out.println(ANSI_GREEN + "Database written!" + ANSI_RESET);
+        } else {
+            System.out.println("\n" + ANSI_RED + "Cannot read Rhythmbox library file!" + ANSI_RESET + "");
         }
+
         System.out.println("\n" + ANSI_GREEN + "Processed " + total + " songs successfully!" + ANSI_RESET + "");
     }
 

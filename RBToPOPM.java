@@ -145,6 +145,8 @@ public class RBToPOPM {
                 }
             }
             executor.shutdown();
+        } else {
+            System.out.println("\n" + ANSI_RED + "Cannot read Rhythmbox library file!" + ANSI_RESET + "");
         }
 
         System.out.println("\n" + ANSI_GREEN + "Processed " + total + " songs successfully!" + ANSI_RESET + "");

@@ -23,15 +23,33 @@ public class Rating {
      */
     public static int extractRating(String popm) {
         if (popm.equals("-")) return 0;
+
         String ratingPart = popm;
-        if (ratingPart.contains(":")) ratingPart = popm.split(":")[1].trim();
+
+        // Get everything after "Rating="
         if (!ratingPart.contains("Rating=")) return 0;
-        ratingPart = ratingPart.substring(ratingPart.indexOf("Rating="));
+        ratingPart = ratingPart.substring(ratingPart.indexOf("Rating=") + "Rating=".length());
+
+        // Get rid of anything after a space
         ratingPart = ratingPart.split(" ")[0];
-        int rating = Integer.parseInt(ratingPart.split("=")[1]);
-        if (rating > 5) {
-            rating = numberToStars.getOrDefault(rating, rating);
+
+        int rating = Integer.parseInt(ratingPart);
+
+        if (rating == 0) {
+            return 0;
         }
-        return rating;
+        if (rating <= 31) {
+            return 1;
+        }
+        if (rating <= 94) {
+            return 2;
+        }
+        if (rating <= 158) {
+            return 3;
+        }
+        if (rating <= 222) {
+            return 4;
+        }
+        return 5;
     }
 }

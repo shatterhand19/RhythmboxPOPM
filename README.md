@@ -44,7 +44,9 @@ This takes the rating from the music file and writes it to the Rhythmbox databas
 Behaviour:
   - if the music file has no rating, it is skipped.
   - if the file has rating and is the same as the one in RB, the file is skipped.
-  - if the file has rating and it is differnt from the RB one, the user is promted: he is shown both ratings and asked if the database should be overriten. 
-    - if the -f option is used this prompt will not appear, the file will be skipped (this is recommended for huge libraries of music)
+  - if the file has rating and it is different from the RB one
+    - if no flag option is passed, the user is prompted: he is shown both ratings and asked if the database should be overwritten (not recommended for huge libraries of music).
+    - if the -f flag option is used this prompt will not appear, the file will be skipped.
+    - if the -o flag option is used this prompt will not appear, the file will be overwritten.
 
-Usage: popmtorb [-f] [files] or popmtorb [files] [-f] (the -f is optional).
+Usage: popmtorb [-f|-o] [files] or popmtorb [files] [-f|-o] (the -f and -o flags are optional).

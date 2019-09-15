@@ -10,8 +10,12 @@ do
     if [ "$file" = "-f" ]
     then flag="-f"
     else
-        files="$files""\n""$file"
-        echo "Adding file ""$file"
+        if [ "$file" = "-o" ]
+        then flag="-o"
+        else
+            files="$files""\n""$file"
+            echo "Adding file ""$file"
+        fi
     fi
 done
 

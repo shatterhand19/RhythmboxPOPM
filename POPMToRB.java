@@ -31,13 +31,17 @@ public class POPMToRB {
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_RESET = "\u001B[0m";
+    private static boolean overwrite = false;
     private static boolean promptChange = true;
     private static int total = 0;
 
     public static void main(String... args) throws ParserConfigurationException, IOException, SAXException, URISyntaxException, InterruptedException, TransformerException {
-        //Read flag
+        //Read flags
         if (args.length >= 2 && args[1].equals("-f")) {
             promptChange = false;
+        }
+        if (args.length >= 2 && args[1].equals("-o")) {
+            overwrite = true;
         }
 
         //Enumerate all the files that are passed to the program
@@ -110,7 +114,10 @@ public class POPMToRB {
                                 } else {
                                     String existsMsg = progressStub + "Rating for " + ANSI_YELLOW + val + ANSI_RED + " already exists";
                                     rbRating = Integer.parseInt(temp.item(0).getTextContent());
-                                    if (fileRating != rbRating && promptChange) {
+                                    if (fileRating != rbRating && overwrite) {
+                                        addNewRating(doc, songElement, fileRating);
+                                        System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + ratings.get(val) + "\n");
+                                    } else if (fileRating != rbRating && promptChange) {
                                         System.out.println(existsMsg + "!" + ANSI_RESET);
                                         System.out.println(ANSI_GREEN + "Rhythmbox rating " + ANSI_RESET + rbRating + ANSI_YELLOW + "    File rating " + ANSI_RESET + fileRating);
                                         System.out.println("Do you want to override it? (Y/n)");
@@ -118,7 +125,7 @@ public class POPMToRB {
                                         String ans = response.next();
                                         if (ans.equals("Y")) {
                                             addNewRating(doc, songElement, fileRating);
-                                            System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + ratings.get(val) + "\n");
+                                            System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + ratings.get(val) + "\n");
                                         }
                                     } else if (fileRating == rbRating) {
                                         System.out.println(existsMsg + ", rating is unchanged, skipping!" + ANSI_RESET);

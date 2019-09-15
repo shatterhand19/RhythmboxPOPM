@@ -1,18 +1,11 @@
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Bozhidar Ganev on 12.12.17.
  */
 public class Rating {
-    public static HashMap<Integer, Integer> numberToStars = new HashMap<>();
-    static {
-        numberToStars.put(0, 0);
-        numberToStars.put(1, 1);
-        numberToStars.put(64, 2);
-        numberToStars.put(128, 3);
-        numberToStars.put(196, 4);
-        numberToStars.put(255, 5);
-    }
     /**
      * Extracts the rating from the popularimeter frame.
      * The format of the exiftool output is:
@@ -22,32 +15,40 @@ public class Rating {
      * @return the extracted rating.
      */
     public static int extractRating(String popm) {
-        if (popm.equals("-")) return 0;
+        if (popm == null) return 0;
 
-        String ratingPart = popm;
+        String pattern = "Rating=(\\d+)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(popm);
+        if (!m.find()) return 0;
+        int rating = Integer.parseInt(m.group(1));
 
-        // Get everything after "Rating="
-        if (!ratingPart.contains("Rating=")) return 0;
-        ratingPart = ratingPart.substring(ratingPart.indexOf("Rating=") + "Rating=".length());
+        /*
+        If mapping from a 5 star rating system, we would have (rounded down)...
 
-        // Get rid of anything after a space
-        ratingPart = ratingPart.split(" ")[0];
+        1 => 1/5*255 = 51
+        2 => 2/5*255 = 102
+        3 => 3/5*255 = 153
+        4 => 4/5*255 = 204
+        5 => 5/5*255 = 255
 
-        int rating = Integer.parseInt(ratingPart);
+        Gap is about 50
+        Half gap is 25, and should be our tolerance
+        */
 
         if (rating == 0) {
             return 0;
         }
-        if (rating <= 32) {
+        if (rating <= 51 + 25) {
             return 1;
         }
-        if (rating <= 95) {
+        if (rating <= 102 + 25) {
             return 2;
         }
-        if (rating <= 159) {
+        if (rating <= 153 + 25) {
             return 3;
         }
-        if (rating <= 223) {
+        if (rating <= 204 + 25) {
             return 4;
         }
         return 5;

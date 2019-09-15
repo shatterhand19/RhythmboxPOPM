@@ -98,31 +98,25 @@ public class RBToPOPM {
                         int popmRating = 0;
                         int playCount = 0;
 
+                        //Get the rating of Rhythmbox
                         NodeList rbRatingNodeList = songElement.getElementsByTagName("rating");
-                        if (rbRatingNodeList != null) {
-                            //Get the rating of Rhythmbox
-                            int rbRating;
-                            Node rbRatingNode = rbRatingNodeList.item(0);
-                            if (rbRatingNode == null) {
-                                rbRating = 0;
-                            } else {
-                                rbRating = Integer.parseInt(rbRatingNode.getTextContent());
-                            }
-                            popmRating = starsToNumber.get(rbRating);
-
+                        int rbRating;
+                        Node rbRatingNode = rbRatingNodeList.item(0);
+                        if (rbRatingNode == null) {
+                            rbRating = 0;
+                        } else {
+                            rbRating = Integer.parseInt(rbRatingNode.getTextContent());
                             fileUpdated = true;
                         }
+                        popmRating = starsToNumber.get(rbRating);
 
+                        //Get the play count of Rhythmbox
                         NodeList rbPlayCountNodeList = songElement.getElementsByTagName("play-count");
-                        if (rbPlayCountNodeList != null) {
-                            //Get the play count of Rhythmbox
-                            Node rbPlayCountNode = rbPlayCountNodeList.item(0);
-                            if (rbPlayCountNode == null) {
-                                playCount = 0;
-                            } else {
-                                playCount = Integer.parseInt(rbPlayCountNode.getTextContent());
-                            }
-
+                        Node rbPlayCountNode = rbPlayCountNodeList.item(0);
+                        if (rbPlayCountNode == null) {
+                            playCount = 0;
+                        } else {
+                            playCount = Integer.parseInt(rbPlayCountNode.getTextContent());
                             fileUpdated = true;
                         }
 

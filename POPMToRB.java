@@ -109,82 +109,76 @@ public class POPMToRB {
 
                         // Handle ratings
                         NodeList rbRatingNodeList = songElement.getElementsByTagName("rating");
-                        if (rbRatingNodeList != null) {
-                            //Get the rating of Rhythmbox
-                            int rbRating, fileRating = ratings.get(val);
-                            Node rbRatingNode = rbRatingNodeList.item(0);
-                            if (fileRating > 0) {
-                                String progressStub = (i + 1) + "/" + totalEntries + ") ";
-                                if (rbRatingNode == null) {
+                        int rbRating, fileRating = ratings.get(val);
+                        Node rbRatingNode = rbRatingNodeList.item(0);
+                        if (fileRating > 0) {
+                            String progressStub = (i + 1) + "/" + totalEntries + ") ";
+                            if (rbRatingNode == null) {
+                                addNewRating(doc, songElement, fileRating);
+                                System.out.println(progressStub + ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + fileRating + "\n");
+                            } else {
+                                String existsMsg = progressStub + "Rating for " + ANSI_YELLOW + val + ANSI_RED + " already exists";
+                                rbRating = Integer.parseInt(rbRatingNode.getTextContent());
+                                if (fileRating != rbRating && overwrite) {
                                     addNewRating(doc, songElement, fileRating);
-                                    System.out.println(progressStub + ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + fileRating + "\n");
-                                } else {
-                                    String existsMsg = progressStub + "Rating for " + ANSI_YELLOW + val + ANSI_RED + " already exists";
-                                    rbRating = Integer.parseInt(rbRatingNode.getTextContent());
-                                    if (fileRating != rbRating && overwrite) {
+                                    System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + fileRating + "\n");
+                                } else if (fileRating != rbRating && promptChange) {
+                                    System.out.println(existsMsg + "!" + ANSI_RESET);
+                                    System.out.println(ANSI_GREEN + "Rhythmbox rating " + ANSI_RESET + rbRating + ANSI_YELLOW + "    File rating " + ANSI_RESET + fileRating);
+                                    System.out.println("Do you want to override it? (Y/n)");
+                                    Scanner response = new Scanner(System.in);
+                                    String ans = response.next();
+                                    if (ans.equals("Y")) {
                                         addNewRating(doc, songElement, fileRating);
                                         System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + fileRating + "\n");
-                                    } else if (fileRating != rbRating && promptChange) {
-                                        System.out.println(existsMsg + "!" + ANSI_RESET);
-                                        System.out.println(ANSI_GREEN + "Rhythmbox rating " + ANSI_RESET + rbRating + ANSI_YELLOW + "    File rating " + ANSI_RESET + fileRating);
-                                        System.out.println("Do you want to override it? (Y/n)");
-                                        Scanner response = new Scanner(System.in);
-                                        String ans = response.next();
-                                        if (ans.equals("Y")) {
-                                            addNewRating(doc, songElement, fileRating);
-                                            System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + fileRating + "\n");
-                                        }
-                                    } else if (fileRating == rbRating) {
-                                        System.out.println(existsMsg + ", rating is unchanged, skipping!" + ANSI_RESET);
-                                    } else {
-                                        System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET);
                                     }
+                                } else if (fileRating == rbRating) {
+                                    System.out.println(existsMsg + ", rating is unchanged, skipping!" + ANSI_RESET);
+                                } else {
+                                    System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET);
                                 }
-
-                                fileUpdated = true;
-                            } else {
-                                System.out.println(ANSI_RED + "Could not find any rating set in " + val + ANSI_RESET + "\n");
                             }
+
+                            fileUpdated = true;
+                        } else {
+                            System.out.println(ANSI_RED + "Could not find any rating set in " + val + ANSI_RESET + "\n");
                         }
 
                         // Handle play counts
                         NodeList rbPlayCountNodeList = songElement.getElementsByTagName("play-count");
-                        if (rbPlayCountNodeList != null) {
-                            //Get the play count of Rhythmbox
-                            int rbPlayCount, filePlayCount = playCounts.get(val);
-                            Node rbPlayCountNode = rbPlayCountNodeList.item(0);
-                            if (filePlayCount > 0) {
-                                String progressStub = (i + 1) + "/" + totalEntries + ") ";
-                                if (rbPlayCountNode == null) {
+                        int rbPlayCount, filePlayCount = playCounts.get(val);
+                        Node rbPlayCountNode = rbPlayCountNodeList.item(0);
+                        if (filePlayCount > 0) {
+                            String progressStub = (i + 1) + "/" + totalEntries + ") ";
+                            if (rbPlayCountNode == null) {
+                                addNewPlayCount(doc, songElement, filePlayCount);
+                                System.out.println(progressStub + ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + filePlayCount + "\n");
+                            } else {
+                                String existsMsg = progressStub + "Play count for " + ANSI_YELLOW + val + ANSI_RED + " already exists";
+                                rbPlayCount = Integer.parseInt(rbPlayCountNode.getTextContent());
+                                if (filePlayCount != rbPlayCount && overwrite) {
                                     addNewPlayCount(doc, songElement, filePlayCount);
-                                    System.out.println(progressStub + ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " set to " + ANSI_RESET + filePlayCount + "\n");
-                                } else {
-                                    String existsMsg = progressStub + "Play count for " + ANSI_YELLOW + val + ANSI_RED + " already exists";
-                                    rbPlayCount = Integer.parseInt(rbPlayCountNode.getTextContent());
-                                    if (filePlayCount != rbPlayCount && overwrite) {
+                                    System.out.println(ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + filePlayCount + "\n");
+                                } else if (filePlayCount != rbPlayCount && promptChange) {
+                                    System.out.println(existsMsg + "!" + ANSI_RESET);
+                                    System.out.println(ANSI_GREEN + "Rhythmbox play count " + ANSI_RESET + rbPlayCount + ANSI_YELLOW + "    File play count " + ANSI_RESET + filePlayCount);
+                                    System.out.println("Do you want to override it? (Y/n)");
+                                    Scanner response = new Scanner(System.in);
+                                    String ans = response.next();
+                                    if (ans.equals("Y")) {
                                         addNewPlayCount(doc, songElement, filePlayCount);
                                         System.out.println(ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + filePlayCount + "\n");
-                                    } else if (filePlayCount != rbPlayCount && promptChange) {
-                                        System.out.println(existsMsg + "!" + ANSI_RESET);
-                                        System.out.println(ANSI_GREEN + "Rhythmbox play count " + ANSI_RESET + rbPlayCount + ANSI_YELLOW + "    File play count " + ANSI_RESET + filePlayCount);
-                                        System.out.println("Do you want to override it? (Y/n)");
-                                        Scanner response = new Scanner(System.in);
-                                        String ans = response.next();
-                                        if (ans.equals("Y")) {
-                                            addNewPlayCount(doc, songElement, filePlayCount);
-                                            System.out.println(ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + filePlayCount + "\n");
-                                        }
-                                    } else if (filePlayCount == rbPlayCount) {
-                                        System.out.println(existsMsg + ", play count is unchanged, skipping!" + ANSI_RESET);
-                                    } else {
-                                        System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET);
                                     }
+                                } else if (filePlayCount == rbPlayCount) {
+                                    System.out.println(existsMsg + ", play count is unchanged, skipping!" + ANSI_RESET);
+                                } else {
+                                    System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET);
                                 }
-
-                                fileUpdated = true;
-                            } else {
-                                System.out.println(ANSI_RED + "Could not find any play count set in " + val + ANSI_RESET + "\n");
                             }
+
+                            fileUpdated = true;
+                        } else {
+                            System.out.println(ANSI_RED + "Could not find any play count set in " + val + ANSI_RESET + "\n");
                         }
 
                         //Increment the number of total processed files

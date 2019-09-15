@@ -27,20 +27,28 @@ public class RBToPOPM {
     public static HashMap<Integer, Integer> starsToNumber = new HashMap<>();
     static {
         starsToNumber.putIfAbsent(0, 0);
-        starsToNumber.putIfAbsent(1, 1);
-        starsToNumber.putIfAbsent(2, 64);
-        starsToNumber.putIfAbsent(3, 128);
-        starsToNumber.putIfAbsent(4, 196);
+        starsToNumber.putIfAbsent(1, 51);
+        starsToNumber.putIfAbsent(2, 102);
+        starsToNumber.putIfAbsent(3, 153);
+        starsToNumber.putIfAbsent(4, 204);
         starsToNumber.putIfAbsent(5, 255);
     }
-    
+
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_RESET = "\u001B[0m";
     private static int total = 0;
+    private static String email = null;
 
     public static void main(String... args) throws ParserConfigurationException, IOException, SAXException, URISyntaxException, InterruptedException, ExecutionException {
+        //Read flags
+        if (args.length >= 2) {
+            email = args[1];
+        } else {
+            email = "someone@example.com";
+        }
+
         //Enumerate all the files that are passed to the program
         List<String> filenames = new ArrayList<>();
         if (args.length >= 1) {
@@ -93,18 +101,18 @@ public class RBToPOPM {
                             //Increment the number of total processed files
                             total++;
                             //Get the rating of RhythmBox
-                            int RBRating;
+                            int rbRating;
                             Node stars = temp.item(0);
                             if (stars == null) {
-                                RBRating = 0;
+                                rbRating = 0;
                             } else {
-                                RBRating = Integer.parseInt(temp.item(0).getTextContent());
+                                rbRating = Integer.parseInt(temp.item(0).getTextContent());
                             }
-                            int WMPRating = starsToNumber.get(RBRating);
+                            int popmRating = starsToNumber.get(rbRating);
 
                             executor.execute(() -> {
                                 try {
-                                    addNewRating(toAddPOPM, RBRating, WMPRating);
+                                    addNewRating(toAddPOPM, popmRating);
                                 } catch (IOException | InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -119,21 +127,18 @@ public class RBToPOPM {
         System.out.println("\n" + ANSI_GREEN + "Processed " + total + " songs successfully!" + ANSI_RESET + "");
     }
 
-    public static void addNewRating(File toAddPOPM, int RBRating, int WMPRating) throws IOException, InterruptedException {
+    public static void addNewRating(File toAddPOPM, int popmRating) throws IOException, InterruptedException {
+        //Clear out old rating
         System.out.println(ANSI_YELLOW + "[Deleting obsolete POPM]\t" + ANSI_RESET + toAddPOPM.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder("eyeD3", "--remove-frame=POPM", toAddPOPM.getAbsolutePath());
         Process p = pb.start();
         p.waitFor();
 
-        //Add the RB rating
-        System.out.println(ANSI_GREEN + "[Adding POPM] [Rating=" + RBRating + "]\t" + ANSI_RESET + toAddPOPM.getAbsolutePath());
-
-        pb = new ProcessBuilder("eyeD3", "--add-popularity=RhythmBox:" + RBRating + ":0", toAddPOPM.getAbsolutePath());
-        Process addRhythmBox = pb.start();
-        addRhythmBox.waitFor();
-
-        pb = new ProcessBuilder("eyeD3", "--add-popularity=Windows Media Player 9 Series:" + WMPRating + ":0", toAddPOPM.getAbsolutePath());
-        Process addWMP = pb.start();
-        addWMP.waitFor();
+        //Add the rating
+        String options = "--add-popularity=" + email + ":" + popmRating + ":0";
+        System.out.println(ANSI_GREEN + "[Adding POPM] [Rating=" + popmRating + "]\t" + ANSI_RESET + toAddPOPM.getAbsolutePath());
+        pb = new ProcessBuilder("eyeD3", options, toAddPOPM.getAbsolutePath());
+        Process addRating = pb.start();
+        addRating.waitFor();
     }
 }

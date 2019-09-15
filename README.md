@@ -35,10 +35,9 @@ bash build
 
 # rbtopopm
 This takes the rating from the Rhythmbox database and writes it to the file, deleting all previous ratings.
-It writes it in both Rhythmbox (1-5) and Windows Media Player (1-255) format.
 
-Usage: rbtopopm [files]
-   
+Usage: rbtopopm email@address [files]
+
 # popmtorb
 This takes the rating from the music file and writes it to the Rhythmbox database, potentially overwriting an existing one.
 Behaviour:

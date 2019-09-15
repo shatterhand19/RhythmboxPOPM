@@ -133,9 +133,9 @@ public class POPMToRB {
                                         System.out.println(ANSI_GREEN + "Rating of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + fileRating + "\n");
                                     }
                                 } else if (fileRating == rbRating) {
-                                    System.out.println(existsMsg + ", rating is unchanged, skipping!" + ANSI_RESET);
+                                    System.out.println(existsMsg + ", rating is unchanged, skipping!" + ANSI_RESET + "\n");
                                 } else {
-                                    System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET);
+                                    System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET + "\n");
                                 }
                             }
 
@@ -170,9 +170,9 @@ public class POPMToRB {
                                         System.out.println(ANSI_GREEN + "Play count of " + ANSI_RESET + val + ANSI_GREEN + " changed to " + ANSI_RESET + filePlayCount + "\n");
                                     }
                                 } else if (filePlayCount == rbPlayCount) {
-                                    System.out.println(existsMsg + ", play count is unchanged, skipping!" + ANSI_RESET);
+                                    System.out.println(existsMsg + ", play count is unchanged, skipping!" + ANSI_RESET + "\n");
                                 } else {
-                                    System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET);
+                                    System.out.println(existsMsg + ", overwriting is disabled due to -f, skipping!" + ANSI_RESET + "\n");
                                 }
                             }
 

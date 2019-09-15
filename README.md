@@ -1,7 +1,7 @@
 # RhythmboxPOPM
 Scripts for dealing with POPM ID3 frames and Rhythmbox.
 
-As is well known, RB uses XML database to store its music files, together with rating. However, it does not read the ID3 rating frame of a music file, if it exists, making it harder for people transferring rated music from other player to this one (for example when switching from Windows to Linux). These scripts are trying to make that easier.
+As is well known, RB uses an XML database to store its music files, together with ratings. However, it does not read the ID3 rating frame of a music file, if it exists, making it harder for people transferring rated music from other players to this one (for example when switching from Windows to Linux). These scripts are trying to make that easier.
 
 Note: the popmtorb is very fast: with -f option it goes through 2000 files in less than 5 seconds. However the rbtopopm is much slower, taking about 5 minutes for all 2000. I understand the problem and I am trying to make it faster. Any input on this is appreciated.
 
@@ -11,18 +11,18 @@ shopt -s globstar
 rbtopopm ~/Music/**/*.mp3
   ```
 
-<b> Note that the music folder must be referenced with whole path from the home folder (i.e. ~/Music/...) </b>
+<b> Note that the music folder must be referenced by whole path from the home folder (i.e. ~/Music/...) </b>
 
-This will select all mp3 files in the Music folder, no matter their place in the file tree. However your shell must support globstar; for other shells there are other solutions online.
+This will select all mp3 files in the Music folder, no matter their place in the file tree.
 
-For very large numbers of files, you may want to instead use something like:
+For very large numbers of files, or for shells not supporting globstar, you may want to instead use something like:
 ```bash
 find ~/Music -name "*.mp3" > ~/Documents/.rbtopopm_temp.txt
 java -cp /usr/local/bin/POPMToRhythmBox.jar POPMToRB ~/Documents/.rbtopopm_temp.txt
   ```
 
 
-For this to work I am using two dependencies - tools called eyeD3 and exiftool, both great tools, worth cheking out if you want to develop something yourself ;)
+For this to work I am using two dependencies - tools called eyeD3 and exiftool, both great tools, worth checking out if you want to develop something yourself ;)
 
 # Installation
 Download and run build. It will install dependencies, compile files and move them to appropriate places. It needs root access. You need to have the Java JDK installed.

@@ -1,15 +1,16 @@
-
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Bozhidar Ganev on 13.12.17.
@@ -29,8 +30,8 @@ public class ID3Reader {
      * @throws InterruptedException if the exiftool process is interrupted
      */
     static String[][] getFrames(String[] files, String... frames) throws IOException, InterruptedException {
+        //Create the command
         ArrayList<String> options = new ArrayList<>();
-        //create the command
         options.add("exiftool");
         //Make it force print if a frame does not exist
         options.add("-f");
@@ -44,31 +45,56 @@ public class ID3Reader {
         Process p = pc.start();
         p.waitFor();
 
-
+        //Read the output
         BufferedReader processOutput = new BufferedReader(new InputStreamReader(p.getInputStream()));
         StringBuilder result = new StringBuilder("");
         String line = null;
-
-        //Read the output
         int l = 0;
         while ((line = processOutput.readLine()) != null) {
             result.append(line).append(System.lineSeparator());
         }
 
+        //Create a way to fast lookup filenames back to our file indices
+        HashMap<String, Integer> filesLookup = new HashMap<>();
+        for (var i = 0; i < files.length; i++) {
+            filesLookup.put(files[i], i);
+        }
+
         //Parse the information in the frames
-        String[][] file_frames = new String[files.length][frames.length];
+        String[][] fileFrames = new String[files.length][frames.length];
         Scanner scanner = new Scanner(result.toString());
-        for (int i = 0; i < files.length; i++) {
-            if (files.length > 1) scanner.nextLine();
-            //System.out.println(i + " out of " + files.length);
-            for (int j = 0; j < frames.length; j++) {
-                String frame = scanner.nextLine();
-                //If the frame has ":" (typically when the frame exists), get only the meaningful part
-                if(frame.contains(":")) frame = frame.substring(frame.indexOf(':') + 1).trim();
-                file_frames[i][j] = frame;
+        Pattern patternFilename = Pattern.compile("^=+ (.*)$");
+        Pattern patternColonedResult = Pattern.compile("^.*\\s+: (.*)$");
+        String currentFilename = null;
+        int currentFrameIndex = 0;
+        Matcher patternFilenameMatcher = null;
+        Matcher patternColonedResultMatcher = null;
+        String nextLine;
+        int i;
+        while (scanner.hasNext()) {
+            nextLine = scanner.nextLine();
+
+            patternFilenameMatcher = patternFilename.matcher(nextLine);
+            patternColonedResultMatcher = patternColonedResult.matcher(nextLine);
+
+            if (patternFilenameMatcher.find()) {
+                currentFilename = patternFilenameMatcher.group(1);
+                currentFrameIndex = 0;
+            } else if ((currentFilename != null) && (currentFrameIndex < frames.length)) {
+                i = filesLookup.get(currentFilename);
+
+                if (patternColonedResultMatcher.find()) {
+                    //If the frame has ":" (typically when the frame exists), get only the meaningful part
+                    fileFrames[i][currentFrameIndex] = patternColonedResultMatcher.group(1);
+                    currentFrameIndex++;
+                } else {
+                    fileFrames[i][currentFrameIndex] = nextLine;
+                    currentFrameIndex++;
+                }
             }
         }
-        return file_frames;
+
+        return fileFrames;
     }
 
     /**

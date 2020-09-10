@@ -2,17 +2,28 @@
 
 dir=/usr/local/bin/
 
-jar_name=RhythmBoxToPOPM.jar
+jar_name=RhythmboxToPOPM.jar
 
+email=""
 for file in "$@"
 do
-files=$files"$file"",;"
-echo "Adding file ""$file"
+    if [ "$email" == "" ] && [ "$file" == *"@"* ]
+    then email="$file"
+    else
+        files="$files""\n""$file"
+        echo "Adding file ""$file"
+    fi
 done
-destdir=~/Documents/.rbtopopm_temp.txt
-touch $destdir
-if [ -f "$destdir" ]
+
+if [ "$email" == "" ]
 then
-    echo "$files" > "$destdir"
+    email="someone@example.com"
 fi
-java -cp $dir$jar_name RBToPOPM "$destdir"
+
+listfile=~/Documents/.rbtopopm_temp.txt
+touch $listfile
+if [ -f "$listfile" ]
+then
+    echo "$files" > "$listfile"
+fi
+java -cp $dir$jar_name RBToPOPM "$listfile" "$email"

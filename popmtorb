@@ -2,7 +2,7 @@
 
 dir=/usr/local/bin/
 
-jar_name=POPMToRhythmBox.jar
+jar_name=POPMToRhythmbox.jar
 
 flag=""
 for file in "$@"
@@ -10,15 +10,19 @@ do
     if [ "$file" = "-f" ]
     then flag="-f"
     else
-        files=$files"$file"",;"
-        echo "Adding file ""$file"
+        if [ "$file" = "-o" ]
+        then flag="-o"
+        else
+            files="$files""\n""$file"
+            echo "Adding file ""$file"
+        fi
     fi
-
 done
-destdir=~/Documents/.rbtopopm_temp.txt
-touch $destdir
-if [ -f "$destdir" ]
+
+listfile=~/Documents/.rbtopopm_temp.txt
+touch $listfile
+if [ -f "$listfile" ]
 then
-    echo "$files" > "$destdir"
+    echo "$files" > "$listfile"
 fi
-java -cp $dir$jar_name POPMToRB "$destdir" "$flag"
+java -cp $dir$jar_name POPMToRB "$listfile" "$flag"

@@ -17,7 +17,7 @@ This will select all mp3 files in the Music folder, no matter their place in the
 
 For very large numbers of files, or for shells not supporting globstar, you may want to instead use something like:
 ```bash
-find ~/Music -name "*.mp3" > ~/Documents/.rbtopopm_temp.txt
+find ~/Music/ -name "*.mp3" > ~/Documents/.rbtopopm_temp.txt
 java -cp /usr/local/bin/POPMToRhythmbox.jar POPMToRB ~/Documents/.rbtopopm_temp.txt
   ```
 
